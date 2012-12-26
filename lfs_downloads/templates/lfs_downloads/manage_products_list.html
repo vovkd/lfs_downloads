@@ -1,0 +1,104 @@
+{% extends "manage/manage_base.html" %}
+{% load i18n lfs_tags lfs_manage_tags %}
+
+{% block help_link %}
+    user/management/lfs_downloads/overview.html
+{% endblock help_link %}
+{% block title %}
+    {% trans "Manage downloads" %}
+{% endblock title %}
+{% block section %}manage-downloads{% endblock%}
+{% block left-slot-wrapper %}
+    {# this is empty #}
+{% endblock left-slot-wrapper %}
+
+
+{% block content %}
+    <div id="lfsd-tabs" class="ui-tabs ui-widget ui-widget-content ui-corner-all">
+        <ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all">
+            <li class="ui-state-default ui-corner-top ui-tabs-selected ui-state-active">
+                <a href="#data">{% trans 'Products' %}</a>
+            </li>
+            <li class="ui-state-default ui-corner-top">
+                <a href="#foo">{% trans 'Files' %}</a>
+            </li>
+            <li class="ui-state-default ui-corner-top">
+                <a href="{% url lfsd_upload %}">{% trans 'Upload' %}</a>
+            </li>
+        </ul>
+        <div id="data" class="ui-tabs-panel ui-widget-content ui-corner-bottom">
+            <div id="products-inline">
+                <h2>{% trans "Overview" %}</h2>
+                <table class="lfs-manage-table">
+                    <tr>
+                        <th>SKU</th>
+                        <th>{% trans "Title" %}</th>
+                        <th>{% trans "Product type" %}</th>
+                        <th>{% trans "Administration" %}</th>
+                    </tr>
+                    {% for product in object_list %}
+                        <tr class="{% cycle 'odd' 'even' %}">
+                            <td>{{ product.sku|default:"N/A" }}</td>
+                            <td>{{ product.name|default:"N/A" }}</td>
+                            <td>{{ product.sub_type|default:"N/A" }}</td>
+                            <td class="right-padding management">
+                                <a href="#">{% trans "Manage downloads" %}</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+        <div id="files">
+            <div id="files-inline">
+                <h2>{% trans "Archivos" %}</h2>
+                <table class="lfs-manage-table">
+                    <tr>
+                        <th>{% trans "Filename" %}</th>
+                        <th>{% trans "Size" %}</th>
+                        <th>{% trans "Uploaded" %}</th>
+                        <th></th>
+                    </tr>
+                    {% for file in file_list  %}
+                        <tr class="{% cycle 'odd' 'even' %}">
+                            <td>{{ file.name }}</td>
+                            <td>{{ file.size }}</td>
+                            <td>{{ file.uploaded }}</td>
+                            <td>delete?</td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+        <div id="upload">
+            <div id="upload-inline">
+                <h2>{% trans "Upload files" %}</h2>
+                <form id="fileupload" method="post" action="." enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="row fileupload-buttonbar">
+                        <div class="">
+                            <div id="add-files" class="button ui-button ui-widget ui-state-default ui-corner-all">
+                                <span>Add files...</span>
+                                <input type="file" name="file" multiple>
+                            </div>
+                            <button id ="upload-start" type="submit" class="button ui-button ui-widget ui-state-default ui-corner-all">
+                                <span>Start upload</span>
+                            </button>
+                            <input id="upload-reset" type="reset" class="button ui-button ui-widget ui-state-default ui-corner-all">
+                                <span>Cancel upload</span>
+                            </input>
+                        </div>
+                        <div class="span5 fileupload-progress fade">
+                            <div class="progress progress-success progres-striped active">
+                                <div class="bar" style="width:0%"></div>
+                            </div>
+                            <div class="progress-extended">&nbsp;</div>
+                        </div>
+                    </div>
+                    <div class="fileupload-loading"></div>
+                    <table class="table table-striped"><tbody class="files" data-toggle="modal-gallery" data-target="#modal-gallery"></tbody></table>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

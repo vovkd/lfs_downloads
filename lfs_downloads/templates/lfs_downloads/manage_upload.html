@@ -1,0 +1,70 @@
+{% extends "manage/manage_base.html" %}
+{% load i18n lfs_tags lfs_manage_tags %}
+
+{% block help_link %}
+    user/management/lfs_downloads/overview.html
+{% endblock help_link %}
+{% block title %}
+    {% trans "Manage downloads" %}
+{% endblock title %}
+{% block section %}manage-downloads{% endblock%}
+{% block left-slot-wrapper %}
+    {# this is empty #}
+{% endblock left-slot-wrapper %}
+
+
+
+{% block content %}
+    <div id="lfsd-tabs" class="ui-tabs ui-widget ui-widget-content ui-corner-all">
+        <ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all">
+            <li class="ui-state-default ui-corner-top">
+                <a href="{% url lfsd_products_list %}">{% trans 'Products' %}</a>
+            </li>
+            <li class="ui-state-default ui-corner-top">
+                <a href="#foo">{% trans 'Files' %}</a>
+            </li>
+            <li class="ui-state-default ui-corner-top ui-tabs-selected ui-state-active">
+                <a href="#data">{% trans 'Upload' %}</a>
+            </li>
+        </ul>
+        <div id="data" class="ui-tabs-panel ui-widget-content ui-corner-bottom">
+            <div id="upload-inline">
+                <h2>{% trans "Upload files" %}</h2>
+                <form id="attachment_upload" method="post" action="{% url lfsd_handle_upload %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {{ form.non_field_errors }}
+                    <input class="button" type="file" name="files" multiple/>
+                </form>
+            </div>
+            <table id="attachment_files" data="{% url lfsd_handle_upload %}" msg='{% trans "Uploading attachments:" %}'></table>
+        </div>
+    </div>
+    <script type="text/javascript">
+    $(function () {
+        $('#attachment_upload').fileUploadUI({
+            uploadTable: $('#attachment_files'),
+            multiFileRequest : true,
+            buildUploadRow: function (attachment_files) {
+                var fileNames = '';
+                for (i = 0; i < attachment_files.length; i += 1) {
+                    fileNames = fileNames + attachment_files[i].name + '<br>';
+                }
+                var msg = $("#attachment_files").attr("msg");
+                return $(
+                    '<tr>' +
+                    '<td><div style="font-weight:bold; padding-bottom:10px">' + msg + '<img src="{{ STATIC_URL }}img/ajax-loader.gif" style="padding:8px 0 0 10px" /></div>' + fileNames + '<\/td>' +
+                    '<\/tr>'
+                );
+            },
+            onLoadAll: function(attachment_files) {
+                var url = $("#attachment_files").attr("data");
+                $.get(url, function(data) {
+                    data = $.parseJSON(data);
+                    $("#attachments").html(data["attachments"]);
+                    $.jGrowl(data["message"]);
+                });
+            }
+        });
+    });
+    </script>
+{% endblock content %}

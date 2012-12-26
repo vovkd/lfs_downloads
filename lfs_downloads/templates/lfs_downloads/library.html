@@ -1,0 +1,35 @@
+{% extends "lfs/customer/base.html" %}
+{% load i18n %}
+{% load lfs_tags %}
+
+{% block title %}
+    {% trans "Your downloads" %} - {{ block.super }}
+{% endblock title %}
+
+{% block section %}
+    my-downloads
+{% endblock section %}
+
+{% block content %}
+    <h1>{% trans "Your downloads" %}</h1>
+
+    <table class="downloads lfs-default">
+        <tr>
+            <th>{% trans "Purchase date" %}</th>
+            <th>{% trans "Title" %}</th>
+            <th>{% trans "Active" %}</th>
+            <th>{% trans "Download" %}</th>
+        </tr>
+        <tr>
+            <td>12-Enero-2012</td>
+            <td>La mente también es Percepción Unitaria</td>
+            <td>
+                <span class="active">Yes</span>
+            </td>
+            <td>
+                <a href="#">Download here</a>
+            </td>
+        </tr>
+    </table>
+
+{% endblock content %}
