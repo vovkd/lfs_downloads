@@ -1,0 +1,51 @@
+{% extends "manage/manage_base.html" %}
+{% load i18n lfs_tags lfs_manage_tags %}
+
+{% block help_link %}
+    user/management/lfs_downloads/overview.html
+{% endblock help_link %}
+{% block title %}
+    {% trans "Manage downloads" %}
+{% endblock title %}
+{% block section %}manage-downloads{% endblock%}
+{% block left-slot-wrapper %}
+    {# this is empty #}
+{% endblock left-slot-wrapper %}
+
+
+{% block content %}
+    <div id="lfsd-tabs" class="ui-tabs ui-widget ui-widget-content ui-corner-all">
+        <ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all">
+            <li class="ui-state-default ui-corner-top">
+                <a href="{% url lfsd_products_list %}">{% trans 'Products' %}</a>
+            </li>
+            <li class="ui-state-default ui-corner-top ui-tabs-selected ui-state-active">
+                <a href="#data">{% trans 'Files' %}</a>
+            </li>
+            <li class="ui-state-default ui-corner-top">
+                <a href="{% url lfsd_upload %}">{% trans 'Upload' %}</a>
+            </li>
+        </ul>
+        <div id="data" class="ui-tabs-panel ui-widget-content ui-corner-bottom">
+            <div id="files-inline">
+                <h2>{% trans "Archivos" %}</h2>
+                <table class="lfs-manage-table">
+                    <tr>
+                        <th>{% trans "Filename" %}</th>
+                        <th>{% trans "Size" %}</th>
+                        <th>{% trans "Uploaded" %}</th>
+                        <th></th>
+                    </tr>
+                    {% for asset in object_list  %}
+                        <tr class="{% cycle 'odd' 'even' %}">
+                            <td>{{ asset.file.name }}</td>
+                            <td>{{ asset.file.size|filesizeformat }}</td>
+                            <td>{{ asset.created }}</td>
+                            <td>delete?</td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
