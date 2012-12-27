@@ -5,9 +5,9 @@
     user/management/lfs_downloads/overview.html
 {% endblock help_link %}
 {% block title %}
-    {% trans "Manage downloads" %}
+    {% trans "Manage assets" %}
 {% endblock title %}
-{% block section %}manage-downloads{% endblock%}
+{% block section %}manage-assets{% endblock%}
 {% block left-slot-wrapper %}
     {# this is empty #}
 {% endblock left-slot-wrapper %}
@@ -34,14 +34,16 @@
                         <th>{% trans "Filename" %}</th>
                         <th>{% trans "Size" %}</th>
                         <th>{% trans "Uploaded" %}</th>
-                        <th></th>
+                        <th>{% trans "Administration" %}</th>
                     </tr>
                     {% for asset in object_list  %}
                         <tr class="{% cycle 'odd' 'even' %}">
                             <td>{{ asset.file.name }}</td>
                             <td>{{ asset.file.size|filesizeformat }}</td>
                             <td>{{ asset.created }}</td>
-                            <td>delete?</td>
+                            <td>
+                                <a href="{% url lfsd_related_products asset.id %}">{% trans "Related products" %}</a>
+                            </td>
                         </tr>
                     {% endfor %}
                 </table>

@@ -6,11 +6,12 @@ from lfs.catalog.models import Product
 from .settings import LFS_DOWNLOADS_PRIVATE_FOLDER, LFS_DOWNLOADS_DOWNLOAD_LIMIT
 from .storage import LFSDownloadsHiddenStorage
 
+
 class DigitalAsset(models.Model):   
     file = models.FileField(upload_to='%Y/%m/%d', storage=LFSDownloadsHiddenStorage())
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
-    product = models.ForeignKey(Product, blank=True, null=True, on_delete=models.SET_NULL)
+    products = models.ManyToManyField(Product)
 
 
 class DownloadDelivery(models.Model):

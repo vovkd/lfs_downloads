@@ -13,7 +13,6 @@
 {% endblock left-slot-wrapper %}
 
 
-
 {% block content %}
     <div id="lfsd-tabs" class="ui-tabs ui-widget ui-widget-content ui-corner-all">
         <ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all">
@@ -21,7 +20,7 @@
                 <a href="{% url lfsd_products_list %}">{% trans 'Products' %}</a>
             </li>
             <li class="ui-state-default ui-corner-top">
-                <a href="#foo">{% trans 'Files' %}</a>
+                <a href="{% url lfsd_files_list %}">{% trans 'Files' %}</a>
             </li>
             <li class="ui-state-default ui-corner-top ui-tabs-selected ui-state-active">
                 <a href="#data">{% trans 'Upload' %}</a>

@@ -1,0 +1,30 @@
+{% extends "manage/manage_base.html" %}
+{% load i18n lfs_tags lfs_manage_tags %}
+
+{% block help_link %}
+    user/management/lfs_downloads/overview.html
+{% endblock help_link %}
+{% block title %}
+    {% trans "Associate digital asset with products" %}
+{% endblock title %}
+{% block section %}manage-related{% endblock%}
+{% block left-slot-wrapper %}
+    {# this is empty #}
+{% endblock left-slot-wrapper %}
+
+
+{% block content %}
+<h2> {% trans "Associate digital asset with products" %}</h2>
+<form action="{% url lfsd_related_products object.id %}" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    <h4 class="helptext"><b>*</b>{{ form.products.help_text }}</h4>
+    <div>
+        {{ form.products.errors }}
+        {{ form.products}}
+    </div>
+    <br/>
+    <input type="submit" class="ajax-save-button button ui-button ui-widget ui-state-default ui-corner-all"
+           value="{% trans 'Save' %}" />
+</form>
+{% endblock content %}

@@ -4,7 +4,7 @@ from django.forms import forms
 from django.http import HttpResponse
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
-from django.views.generic import ListView, TemplateView
+from django.views.generic import ListView, TemplateView, UpdateView
 
 from lfs.catalog.models import Product
 from lfs.core.utils import LazyEncoder
@@ -16,6 +16,7 @@ class ManageMixin(object):
     @method_decorator(permission_required("core.manage_sxxhop", login_url="/login/"))
     def dispatch(self, request, *args, **kwargs):
         return super(ManageMixin, self).dispatch(request, *args, **kwargs)
+
 
 #User pages and views
 class UserDownloadsListView(ManageMixin, ListView):
@@ -45,6 +46,11 @@ class ProductsListView(ManageMixin, ListView):
         return context
 
 
+class DigitalAssetsListView(ManageMixin, ListView):
+    model = DigitalAsset
+    template_name = 'lfs_downloads/manage_files_list.html'
+
+
 class UploadView(ManageMixin, TemplateView):
     template_name = 'lfs_downloads/manage_upload.html'
 
@@ -66,3 +72,7 @@ def handle_upload(request):
         {'message': _(u'F   iles uploaded')}, 
         cls=LazyEncoder)
     )
+
+class RelatedEditView(UpdateView):
+    model = DigitalAsset
+    template_name = 'lfs_downloads/manage_related.html'
