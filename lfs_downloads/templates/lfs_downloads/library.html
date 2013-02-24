@@ -11,25 +11,35 @@
 {% endblock section %}
 
 {% block content %}
+    {% if object_list %}
     <h1>{% trans "Your downloads" %}</h1>
 
     <table class="downloads lfs-default">
         <tr>
             <th>{% trans "Purchase date" %}</th>
             <th>{% trans "Title" %}</th>
-            <th>{% trans "Active" %}</th>
-            <th>{% trans "Download" %}</th>
+            <th>{% trans "Download count" %}</th>
+            <th></th>
         </tr>
         <tr>
-            <td>12-Enero-2012</td>
-            <td>La mente también es Percepción Unitaria</td>
+            {% for delivery in object_list %}
+            {% if delivery.available %}
+            <td>{{delivery.order.order.created}}</td>
+            <td> {{delivery.order}}</td>
             <td>
-                <span class="active">Yes</span>
+                {% blocktrans with count=delivery.downloads_left %}
+                    {{ count }} downloads left.
+                {% endblocktrans %}
             </td>
             <td>
-                <a href="#">Download here</a>
+                <a href="{{delivery.asset.get_absolute_url}}" class="emphazised">Click here to download</a>
             </td>
+            {% endif %}
+            {% endfor %}
         </tr>
     </table>
+    {% else %}
+    <h1>{% trans "Sorry, don't have any downloads yet" %}</h1>
+    {% endif %}
 
 {% endblock content %}

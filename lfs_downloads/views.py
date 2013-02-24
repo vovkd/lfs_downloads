@@ -1,28 +1,56 @@
-from django.utils import simplejson
+import os.path
+from datetime import datetime
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import permission_required
 from django.forms import forms
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseForbidden
+from django.utils import simplejson
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import ListView, TemplateView, UpdateView
 
 from lfs.catalog.models import Product
 from lfs.core.utils import LazyEncoder
+from lfs.caching.utils import lfs_get_object_or_404
 
 from .models import DigitalAsset, DownloadDelivery
-
+from .sendfile import xsendfileserve
 
 class ManageMixin(object):
-    @method_decorator(permission_required("core.manage_sxxhop", login_url="/login/"))
+    @method_decorator(permission_required("core.manage_shop", login_url="/login/"))
     def dispatch(self, request, *args, **kwargs):
         return super(ManageMixin, self).dispatch(request, *args, **kwargs)
 
+class SimpleSecurityMixin(object):
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super(SimpleSecurityMixin, self).dispatch(request, *args, **kwargs)
+
 
 #User pages and views
-class UserDownloadsListView(ManageMixin, ListView):
+
+class UserDownloadsListView(SimpleSecurityMixin, ListView):
     model = DownloadDelivery
     template_name = 'lfs_downloads/library.html'
 
+    def get_queryset(self):
+        return self.model.objects.filter(user=self.request.user)
+
+
+@login_required
+def download_proxy_view(request, pk):
+    delivery = lfs_get_object_or_404(DownloadDelivery, id=pk)
+    if delivery.available:
+        delivery.download_count += 1
+        delivery.downloaded_at = datetime.now()
+        delivery.save()
+        #Now, go look for the file and serve it.
+        opath = delivery.asset.file.path
+        dpath = os.path.dirname(opath)
+        fname = os.path.basename(opath)
+        return xsendfileserve(request=request, path=fname, document_root=dpath)
+    else:
+        return HttpResponseForbidden()
 
 #Admin pages and views
 class ProductsListView(ManageMixin, ListView):
@@ -42,7 +70,7 @@ class ProductsListView(ManageMixin, ListView):
         Get the context for this view.
         """
         context = super(ProductsListView, self).get_context_data(**kwargs)
-        context['Lorem ipsum sunt tempor ut ad ad laborum commodo fugiat consequat fugiat. file_list'] = self.file_list()
+        context['file_list'] = self.file_list()
         return context
 
 

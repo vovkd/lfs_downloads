@@ -1,39 +1,41 @@
-import os
-import shutil
+from unittest import TestCase
 from django.test import TestCase
-from django.conf import settings
+from django.contrib.sessions.backends.file import SessionStore
+
 from lfs.catalog.models import Product
 from lfs.tax.models import Tax
-from lfs_downloads.models import DigitalAsset
+from lfs.tests.utils import RequestFactory
+from lfs.catalog.settings import PRODUCT_WITH_VARIANTS, VARIANT
 
 
-class ModelsTestCase(TestCase):
+class LFSDownloadsTestCase(TestCase):
+    """
+    Test lfs_downloads
+
+    LFS downloads react when user buys a product. It doesn't care what kind of
+    product has been bought. If the product 
+    """
+    fixtures = ['lfs_shop.xml']
 
     def setUp(self):
-        self.tax = Tax.objects.create(rate=17.0)
+        """
+        """
+        self.request = RequestFactory().get("/")
+        self.request.session = SessionStore()
+
+        # Create a product
+        # LFS downloads does not depend upon properties 
         self.p1 = Product.objects.create(
-            name="Product 1",
-            slug="product-1",
-            price=10.0,
-            tax=self.tax,
+            name=u"My Product",
+            slug=u"my-product",
+            sku=u"SKU MYPR",
+            description=u"Description",
+            short_description=u"Short description my product",
+            meta_description=u"Meta description my product",
+            meta_keywords=u"Meta keywords my product",
+            price=1.0,
             active=True
         )
-        self.tempdir = os.tempnam()
-        self.pubdir = os.path.join(self.tempdir, 'public')
-        self.privdir = os.path.join(self.tempdir, 'private')
-        os.mkdir(self.tempdir)
-        os.mkdir(self.pubdir)
-        os.mkdir(self.privdir)
-        self.old_pubdir = getattr(settings, 'LFS_DOWNLOADS_PUBLIC_FOLDER', None)
-        self.old_privdir = getattr(settings, 'LFS_DOWNLOADS_PRIVATE_FOLDER', None)
-        setattr(settings, 'LFS_DOWNLOADS_PUBLIC_FOLDER', self.pubdir)
-        setattr(settings, 'LFS_DOWNLOADS_PRIVATE_FOLDER', self.privdir)
 
-    def tearDown(self):
-        setattr(settings, 'LFS_DOWNLOADS_PUBLIC_FOLDER', self.old_pubdir)
-        setattr(settings, 'LFS_DOWNLOADS_PRIVATE_FOLDER', self.old_privdir)
-        shutil.rmtree(self.tempdir)
-
-    def testDigitalAsset(self):
-        asset = DigitalAsset.objects.create(file = 'xx', product=self.p1)
-        
+        # setup attachments test stuff
+        self.setupAttachments()
