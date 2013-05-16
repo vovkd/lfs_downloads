@@ -1,18 +1,25 @@
+#Pythonic
 import os.path
 from datetime import datetime
+
+#Django madness
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import permission_required
-from django.forms import forms
 from django.http import HttpResponse, HttpResponseForbidden
+from django.template import RequestContext
+from django.template.loader import render_to_string
 from django.utils import simplejson
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import ListView, TemplateView, UpdateView
 
-from lfs.catalog.models import Product
-from lfs.core.utils import LazyEncoder
+#lfs's spaghetti :D
 from lfs.caching.utils import lfs_get_object_or_404
+from lfs.catalog.models import Product
+from lfs.core.signals import product_changed
+from lfs.core.utils import LazyEncoder
 
+#My own mess
 from .models import DigitalAsset, DownloadDelivery
 from .sendfile import xsendfileserve
 
@@ -35,7 +42,6 @@ class UserDownloadsListView(SimpleSecurityMixin, ListView):
 
     def get_queryset(self):
         return self.model.objects.filter(user=self.request.user)
-
 
 @login_required
 def download_proxy_view(request, pk):
@@ -83,24 +89,70 @@ class UploadView(ManageMixin, TemplateView):
     template_name = 'lfs_downloads/manage_upload.html'
 
 
-@permission_required("core.manage_shop", login_url="/login/")
-def handle_upload(request):
-    """
-        Handles upload of new DigitalAsset
-    """
-    if request.method == "POST":
-        for file_content in request.FILES.getlist("files"):
-            digiasset = DigitalAsset(file=file_content)
-            digiasset.file.save(file_content.name, file_content, save=True)
-        return HttpResponse(simplejson.dumps(
-            {'message': _(u'%s files uploaded') % len(request.FILES)}, 
-            cls=LazyEncoder)
-        )
-    return HttpResponse(simplejson.dumps(   
-        {'message': _(u'F   iles uploaded')}, 
-        cls=LazyEncoder)
-    )
-
 class RelatedEditView(UpdateView):
     model = DigitalAsset
     template_name = 'lfs_downloads/manage_related.html'
+
+@permission_required("core.manage_shop", login_url="/login/")
+def manage_digital_products(request, product_id, as_string=False,
+                   template_name="lfs_downloads/manage_digital_products.html"):
+    product = lfs_get_object_or_404(Product, pk=product_id)
+    digiproducts = DigitalAsset.objects.filter(product=product).all()
+    result = render_to_string(template_name,RequestContext(request, {
+        "product": product,
+        "digiproducts": digiproducts,
+        "has_digiproducts": len(digiproducts)
+    }))
+
+    if as_string:
+        return result
+    else:
+        result = simplejson.dumps({
+            "html_data": result,
+            "message": _(u"New attachment."),
+        }, cls=LazyEncoder)
+
+        return HttpResponse(result)
+
+@permission_required("core.manage_shop", login_url="/login/")
+def handle_upload(request, product_id):
+    """
+        Handles upload of new DigitalAsset
+    """
+    product = lfs_get_object_or_404(Product, pk=product_id)
+    if request.method == "POST":
+        for file_content in request.FILES.getlist("files"):
+            digiproduct = DigitalAsset(file=file_content, product=product)
+            digiproduct.file.save(file_content.name, file_content, save=True)
+
+    product_changed.send(product, request=request)
+    return manage_digital_products(request, product_id)
+
+@permission_required("core.manage_shop", login_url="/login/")
+def update_digiproducts(request, product_id):
+    """
+        Just to delete digital products with given ids (passed by request body).
+        Maybe later have some description.
+    """
+    product = lfs_get_object_or_404(Product, pk=product_id)
+    action = request.POST.get("action")
+    message = _(u"Digital Product has been updated.")
+
+    if action == "delete":
+        message = _(u"Digital Product has been deleted.")
+        for key in request.POST.keys():
+            if key.startswith("delete-"):
+                try:
+                    id = key.split("-")[1]
+                    digiproduct = DigitalAsset.objects.get(pk=id).delete()
+                except (IndexError, ObjectDoesNotExist):
+                    pass
+    product_changed.send(product, request=request)
+
+    html = [["#lfs_downloads", manage_digital_products(request, product_id, as_string=True)]]
+    result = simplejson.dumps({
+        "html": html,
+        "message": message,
+    }, cls=LazyEncoder)
+
+    return HttpResponse(result)

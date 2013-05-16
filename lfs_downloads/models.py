@@ -1,3 +1,5 @@
+import os
+
 from django.db import models
 from django.contrib.auth.models import User
 from django.dispatch import receiver
@@ -10,7 +12,10 @@ from .settings import LFS_DOWNLOADS_PRIVATE_FOLDER, LFS_DOWNLOADS_DOWNLOAD_LIMIT
 from .storage import LFSDownloadsHiddenStorage
 
 
-class DigitalAsset(models.Model):   
+class DigitalAsset(models.Model):
+    """
+    Links a product with a file that will be delivered
+    """
     file = models.FileField(upload_to='%Y/%m/%d', storage=LFSDownloadsHiddenStorage())
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
@@ -18,7 +23,19 @@ class DigitalAsset(models.Model):
 
     def get_absolute_url(self):
         return reverse('lfsd_download_proxy', args=[str(self.id)])
-        
+
+    def __unicode__(self):
+        if self.product:
+            return "DigitalAsset for %s" % (self.product.name)
+        else:
+            return super(self, DigitalAsset).__unicode__()
+
+    def get_filename(self):
+        return os.path.basename(self.file.name)
+
+    def get_filesize(self):
+        return self.file.size
+
 class DownloadDelivery(models.Model):
     """
     When the user buys a DigitalAsset, a DownloadDelivery record will be
@@ -44,7 +61,6 @@ def find_digital_downloads_in_order(sender, **kwargs):
     oitems = OrderItem.objects.filter(order=order)
     products = [oitm.product for oitm in oitems]
     for p in products:
-
         d = DownloadDelivery(
             user = order.user,
             order = oitm,

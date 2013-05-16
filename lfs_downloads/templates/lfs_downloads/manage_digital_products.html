@@ -1,0 +1,90 @@
+{% load i18n %}
+
+<h2 class="heading-first">{% trans 'Digital Product' %}</h2>
+
+{% if has_digiproducts %}
+    <form id="digital-product-update-form"
+          action="{% url lfsd_update_digiproducts product.id %}"
+          method="post">
+
+        <table class="lfs-manage-table attachments">
+            <tr>
+                <th class="tiny">
+                    <input type="checkbox"
+                           class="select-all"
+                           value="delete-attachments" />
+                </th>
+                <th class="small">
+                    {% trans 'File name' %}
+                </th>
+                <th class="small">
+                    {% trans 'File size' %}
+                </th>
+                <th class="small right-padding">
+                    {% trans 'Uploaded on' %}
+                </th>
+            </tr>
+            {% for digiproduct in digiproducts %}
+                <tr>
+                    <td>
+                        <input type="checkbox"
+                               class="select-delete-digiproductss"
+                               name="delete-{{ digiproduct.id }}"/>
+                    </td>
+                    <td>
+                        <span>{{digiproduct.get_filename}}</span>
+                    </td>
+                    <td>
+                        <span>{{ digiproduct.get_filesize|filesizeformat }}</span>
+                    </td>
+                    <td class="right-padding">
+                        <span>{{ digiproduct.created|date:"DATETIME_FORMAT" }}</span>
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+        <div class="buttons">
+            <input class="ajax-save-button button"
+                   type="submit" name="delete" value="{% trans 'Delete digital product(s)' %}" />
+        </div>
+    </form>
+{% else %}
+    <span>{% trans 'This product does not have any digital product associated' %}</span>
+{% endif %}
+
+
+<h2 class="heading-middle">{% trans 'Upload files below' %}</h2>
+<div id="content">
+    <form id="digiproduct_upload" action="{% url lfsd_handle_upload product.id %}" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input class="button" type="file" name="files" multiple/>
+    </form>
+    <table id="digiproduct_files" data="{% url lfsd_manage_digital_products product.id %}" msg='{% trans "Uploading attachments:" %}'></table>
+</div>
+<script type="text/javascript">
+    $(function () {
+        $('#digiproduct_upload').fileUploadUI({
+            uploadTable: $('#digiproduct_files'),
+            buildUploadRow: function (digiproduct_files) {
+                var fileNames = '';
+                for (i = 0; i < digiproduct_files.length; i += 1) {
+                    fileNames = fileNames + digiproduct_files[i].name + '<br>';
+                }
+                var msg = $("#digiproduct_files").attr("msg");
+                return $(
+                    '<tr>' +
+                    '<td><div style="font-weight:bold; padding-bottom:10px">' + msg + '<img src="{{ STATIC_URL }}img/ajax-loader.gif" style="padding:8px 0 0 10px" /></div>' + fileNames + '<\/td>' +
+                    '<\/tr>'
+                );
+            },
+            onLoadAll: function(digiproduct_files) {
+                var url = $("#digiproduct_files").attr("data");
+                $.get(url, function(data) {
+                    data = $.parseJSON(data);
+                    $("#lfs_downloads").html(data["html_data"]);
+                    $.jGrowl(data["message"]);
+                });
+            }
+        });
+    });
+</script>
