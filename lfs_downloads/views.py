@@ -98,10 +98,12 @@ def manage_digital_products(request, product_id, as_string=False,
                    template_name="lfs_downloads/manage_digital_products.html"):
     product = lfs_get_object_or_404(Product, pk=product_id)
     digiproducts = DigitalAsset.objects.filter(product=product).all()
+    donation_mode = DigitalAsset.objects.filter(product=product, donation_mode=True).all()
     result = render_to_string(template_name,RequestContext(request, {
         "product": product,
         "digiproducts": digiproducts,
-        "has_digiproducts": len(digiproducts)
+        "has_digiproducts": len(digiproducts),
+        "donation_mode": len(donation_mode)
     }))
 
     if as_string:
@@ -147,6 +149,12 @@ def update_digiproducts(request, product_id):
                     digiproduct = DigitalAsset.objects.get(pk=id).delete()
                 except (IndexError, ObjectDoesNotExist):
                     pass
+    if action == 'update_donation_mode':
+        product = lfs_get_object_or_404(Product, pk=product_id)
+        message = _(u"Donation mode has been updated.")
+        if request.POST.get('donation_mode', False):
+            DigitalAsset.objects.filter(product=product).update(donation_mode=True)
+
     product_changed.send(product, request=request)
 
     html = [["#lfs_downloads", manage_digital_products(request, product_id, as_string=True)]]

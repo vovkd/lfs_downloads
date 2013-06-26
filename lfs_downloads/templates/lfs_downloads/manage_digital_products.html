@@ -1,6 +1,6 @@
 {% load i18n %}
 
-<h2 class="heading-first">{% trans 'Digital Product' %}</h2>
+<h2 class="heading-first">{% trans 'Digital Products' %}</h2>
 
 {% if has_digiproducts %}
     <form id="digital-product-update-form"
@@ -13,6 +13,7 @@
                     <input type="checkbox"
                            class="select-all"
                            value="delete-attachments" />
+                    <span style="font-size: xx-small">(delete)</span>
                 </th>
                 <th class="small">
                     {% trans 'File name' %}
@@ -46,6 +47,29 @@
         <div class="buttons">
             <input class="ajax-save-button button"
                    type="submit" name="delete" value="{% trans 'Delete digital product(s)' %}" />
+        </div>
+    </form>
+
+    <h2 class="heading-middle">Use donations workflow</h2>
+    <form id="donation-mode-update-form" action="{% url lfsd_update_digiproducts product.id %}"
+          method="post">
+
+        <p>{% trans 'The donation workflow alows to bypass the cart process and request for a donation instead.' %}</p>
+        <div class="field-row">
+            <label for="id_donation_mode">
+                {% trans 'Enable donation workflow.' %}
+            </label>
+            <div class="field">
+                {% if donation_mode %}
+                <input checked="checked" type="checkbox" name="donation_mode" id="id_donation_mode" />
+                {% else %}
+                <input type="checkbox" name="donation_mode" id="id_donation_mode" />
+                {% endif %}
+            </div>
+        </div>
+        <div class="buttons">
+            <input class="ajax-save-button button"
+                   type="submit" name="update_donation_mode" value="{% trans 'Change' %}"  />
         </div>
     </form>
 {% else %}

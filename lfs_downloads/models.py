@@ -20,6 +20,7 @@ class DigitalAsset(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     product = models.ForeignKey(Product, null=True)
+    donation_mode = models.BooleanField(default=False)
 
     def get_absolute_url(self):
         return reverse('lfsd_download_proxy', args=[str(self.id)])
