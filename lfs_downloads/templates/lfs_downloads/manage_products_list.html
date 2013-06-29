@@ -23,24 +23,22 @@
                 <a href="{% url lfsd_files_list %}">{% trans 'Files' %}</a>
             </li>
             <li class="ui-state-default ui-corner-top">
-                <a href="{% url lfsd_upload %}">{% trans 'Upload' %}</a>
+                <a href="{% url lfsd_upload %}">{% trans 'File upload' %}</a>
             </li>
         </ul>
         <div id="data" class="ui-tabs-panel ui-widget-content ui-corner-bottom">
             <div id="products-inline">
-                <h2>{% trans "Overview" %}</h2>
+                <h2>{% trans "Overview of products" %}</h2>
                 <table class="lfs-manage-table">
                     <tr>
                         <th>SKU</th>
                         <th>{% trans "Title" %}</th>
-                        <th>{% trans "Product type" %}</th>
-                        <th>{% trans "Administration" %}</th>
+                        <th>{% trans "File" %}</th>
                     </tr>
                     {% for product in object_list %}
                         <tr class="{% cycle 'odd' 'even' %}">
                             <td>{{ product.sku|default:"N/A" }}</td>
                             <td>{{ product.name|default:"N/A" }}</td>
-                            <td>{{ product.sub_type|default:"N/A" }}</td>
                             <td class="right-padding management">
                                 <a href="#">{% trans "Manage downloads" %}</a>
                             </td>

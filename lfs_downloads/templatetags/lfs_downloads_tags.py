@@ -12,3 +12,7 @@ def lfs_downloads_management(context, product):
 
     result = manage_digital_products(request, product.id, as_string=True)
     return mark_safe(result)
+
+@register.filter('has_donation_mode')
+def has_donation_mode (product):
+    return product.digitalasset_set.filter(donation_mode=True).count()

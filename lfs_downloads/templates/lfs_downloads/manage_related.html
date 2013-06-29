@@ -15,13 +15,15 @@
 
 {% block content %}
 <h2> {% trans "Associate digital asset with products" %}</h2>
-<form action="{% url lfsd_related_products object.id %}" method="post" enctype="multipart/form-data">
+<form action="{% url lfsd_related_products object.id %}" method="post"
+      {% if form.is_multipart %}enctype="multipart/form-data"{% endif %}>
     {% csrf_token %}
     {{ form.non_field_errors }}
     <h4 class="helptext"><b>*</b>{{ form.products.help_text }}</h4>
     <div>
-        {{ form.products.errors }}
-        {{ form.products}}
+        {{ form.product.errors }}
+        <label for="id_product">Select a product:</label>
+        {{ form.product }}
     </div>
     <br/>
     <input type="submit" class="ajax-save-button button ui-button ui-widget ui-state-default ui-corner-all"

@@ -154,6 +154,8 @@ def update_digiproducts(request, product_id):
         message = _(u"Donation mode has been updated.")
         if request.POST.get('donation_mode', False):
             DigitalAsset.objects.filter(product=product).update(donation_mode=True)
+        else:
+            DigitalAsset.objects.filter(product=product).update(donation_mode=False)
 
     product_changed.send(product, request=request)
 
