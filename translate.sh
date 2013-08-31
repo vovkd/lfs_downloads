@@ -1,4 +1,4 @@
 #!/bin/bash
-cd lfs
+cd lfs_downloads
 ../../../bin/django compilemessages
 cd ..
