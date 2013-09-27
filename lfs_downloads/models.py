@@ -47,6 +47,9 @@ class DownloadDelivery(models.Model):
     downloaded_at = models.DateField(null=True)
     download_count = models.IntegerField(default=0)
     asset = models.ForeignKey(DigitalAsset)
+    product = models.ForeignKey(Product, blank=True, null=True)
+    created = models.DateTimeField(auto_now_add=True)
+
 
     @property
     def downloads_left (self):

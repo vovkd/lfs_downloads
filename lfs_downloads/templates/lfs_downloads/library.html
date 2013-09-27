@@ -16,30 +16,30 @@
 
     <table class="downloads lfs-default">
         <tr>
-            <th>{% trans "Purchase date" %}</th>
-            <th>{% trans "Title" %}</th>
-            <th>{% trans "Download count" %}</th>
+            <th>Fecha de compra %}</th>
+            <th>Título</th>
+            <th>Num. Descargas</th>
             <th></th>
         </tr>
         {% for delivery in object_list %}
         <tr>
             {% if delivery.available %}
-            <td>{{delivery.order.order.created}}</td>
-            <td> {{delivery.order}}</td>
+            <td>{{delivery.created}}</td>
+            <td>{{delivery.product}}</td>
             <td>
                 {% blocktrans with count=delivery.downloads_left %}
-                    {{ count }} downloads left.
+                    Quedan {{ count }} descargas disponibles.
                 {% endblocktrans %}
             </td>
             <td>
-                <a href="{{delivery.asset.get_absolute_url}}" class="emphazised">Click here to download</a>
+                <a href="{{delivery.asset.get_absolute_url}}" class="emphazised">Click aquí para descargar</a>
             </td>
             {% endif %}
         </tr>
         {% endfor %}
     </table>
     {% else %}
-    <h1>{% trans "Sorry, don't have any downloads yet" %}</h1>
+    <h1>{% trans Lo sentimos, por el momento no tienes ninguna descarga disponible.</h1>
     {% endif %}
 
 {% endblock content %}
