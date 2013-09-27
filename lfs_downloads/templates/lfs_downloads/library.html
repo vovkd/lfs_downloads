@@ -21,8 +21,8 @@
             <th>{% trans "Download count" %}</th>
             <th></th>
         </tr>
+        {% for delivery in object_list %}
         <tr>
-            {% for delivery in object_list %}
             {% if delivery.available %}
             <td>{{delivery.order.order.created}}</td>
             <td> {{delivery.order}}</td>
@@ -35,8 +35,8 @@
                 <a href="{{delivery.asset.get_absolute_url}}" class="emphazised">Click here to download</a>
             </td>
             {% endif %}
-            {% endfor %}
         </tr>
+        {% endfor %}
     </table>
     {% else %}
     <h1>{% trans "Sorry, don't have any downloads yet" %}</h1>
