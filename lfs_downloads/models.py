@@ -50,6 +50,8 @@ class DownloadDelivery(models.Model):
     product = models.ForeignKey(Product, blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True)
 
+    def get_absolute_url(self):
+        return reverse('lfsd_download_proxy', args=[str(self.id)])
 
     @property
     def downloads_left (self):
