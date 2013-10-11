@@ -1,9 +1,12 @@
 import os
+import logging
 
-from django.db import models
 from django.contrib.auth.models import User
-from django.dispatch import receiver
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
+from django.db import models
+from django.dispatch import receiver
+
 from lfs.order.models import OrderItem
 from lfs.catalog.models import Product
 from lfs.core.signals import order_paid
@@ -37,6 +40,7 @@ class DigitalAsset(models.Model):
     def get_filesize(self):
         return self.file.size
 
+
 class DownloadDelivery(models.Model):
     """
     When the user buys a DigitalAsset, a DownloadDelivery record will be
@@ -61,15 +65,20 @@ class DownloadDelivery(models.Model):
     def available(self):
         return self.download_count < LFS_DOWNLOADS_DOWNLOAD_LIMIT
 
+
 @receiver(order_paid)
 def find_digital_downloads_in_order(sender, **kwargs):
     order =  sender['order']
     oitems = OrderItem.objects.filter(order=order)
     products = [oitm.product for oitm in oitems]
-    for p in products:
-        d = DownloadDelivery(
-            user = order.user,
-            order = oitm,
-            asset = DigitalAsset.objects.get(product__id=p.id)
-        )
-        d.save()
+    try:
+        for p in products:
+            d = DownloadDelivery(
+                user=order.user,
+                order=oitm,
+                asset=DigitalAsset.objects.get(product__id=p.id)
+            )
+            d.save()
+    except ObjectDoesNotExist:
+        logging.debug('The product %s does not have any DigitalAsset')
+        return
