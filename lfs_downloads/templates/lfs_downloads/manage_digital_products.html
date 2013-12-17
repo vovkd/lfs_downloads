@@ -1,7 +1,44 @@
 {% load i18n %}
 
-<h2 class="heading-first">{% trans 'Digital Products' %}</h2>
+    <h2 class="heading-middle">Modo donación</h2>
+    <form id="donation-mode-update-form" action="{% url lfsd_update_digiproducts product.id %}"
+          method="post">
 
+        <p>En el modo donación el usuario puede adquirir productos digitales mediante una donación que es variable.</p>
+        <div class="field-row">
+            <label for="id_donation_mode">
+                ¿Usar modo de donación?
+            </label>
+            <div class="field">
+                {% if donation_mode %}
+                <input checked="checked" type="checkbox" name="donation_mode" id="id_donation_mode" />
+                {% else %}
+                <input type="checkbox" name="donation_mode" id="id_donation_mode" />
+                {% endif %}
+            </div>
+        </div>
+        <div class="field-row">
+            <label for="minimum_price">
+                Precio mínimo
+            </label>
+            <div class="field">
+                <input type="text" value="{{minimum_price}}" name="minimum_price"/>
+            </div>
+        </div>
+        <div class="field-row">
+            <label for="suggested_price">
+                Precio sugerido
+            </label>
+            <div class="field">
+                <input type="text" value="{{suggested_price}}" name="suggested_price"/>
+            </div>
+        </div>
+        <div class="buttons">
+            <input class="ajax-save-button button"
+                   type="submit" name="update_donation_mode" value="{% trans 'Change' %}"  />
+        </div>
+    </form>
+    <h2 class="heading-first">Productos digitales</h2>
 {% if has_digiproducts %}
     <form id="digital-product-update-form"
           action="{% url lfsd_update_digiproducts product.id %}"
@@ -49,35 +86,12 @@
                    type="submit" name="delete" value="{% trans 'Delete digital product(s)' %}" />
         </div>
     </form>
-
-    <h2 class="heading-middle">Use donations workflow</h2>
-    <form id="donation-mode-update-form" action="{% url lfsd_update_digiproducts product.id %}"
-          method="post">
-
-        <p>{% trans 'The donation workflow alows to bypass the cart process and request for a donation instead.' %}</p>
-        <div class="field-row">
-            <label for="id_donation_mode">
-                {% trans 'Enable donation workflow.' %}
-            </label>
-            <div class="field">
-                {% if donation_mode %}
-                <input checked="checked" type="checkbox" name="donation_mode" id="id_donation_mode" />
-                {% else %}
-                <input type="checkbox" name="donation_mode" id="id_donation_mode" />
-                {% endif %}
-            </div>
-        </div>
-        <div class="buttons">
-            <input class="ajax-save-button button"
-                   type="submit" name="update_donation_mode" value="{% trans 'Change' %}"  />
-        </div>
-    </form>
 {% else %}
-    <span>{% trans 'This product does not have any digital product associated' %}</span>
+    <span>Este producto no tiene archivos.</span>
 {% endif %}
 
 
-<h2 class="heading-middle">{% trans 'Upload files below' %}</h2>
+<h2 class="heading-middle">Subir archivos</h2>
 <div id="content">
     <form id="digiproduct_upload" action="{% url lfsd_handle_upload product.id %}" method="POST" enctype="multipart/form-data">
         {% csrf_token %}

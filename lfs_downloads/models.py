@@ -6,6 +6,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.dispatch import receiver
+from django.core.validators import MinValueValidator
 
 from lfs.order.models import OrderItem
 from lfs.catalog.models import Product
@@ -24,6 +25,14 @@ class DigitalAsset(models.Model):
     updated = models.DateTimeField(auto_now=True)
     product = models.ForeignKey(Product, null=True)
     donation_mode = models.BooleanField(default=False)
+    minimum_price = models.FloatField(
+        default=1.00,
+        validators=[MinValueValidator(1.0)]
+    )
+    suggested_price = models.FloatField(
+        default=10.00,
+        validators=[MinValueValidator(1.0)]
+    )
 
     def get_absolute_url(self):
         return reverse('lfsd_download_proxy', args=[str(self.id)])

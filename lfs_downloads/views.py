@@ -22,6 +22,8 @@ from lfs.core.utils import LazyEncoder
 #My own mess
 from .models import DigitalAsset, DownloadDelivery
 from .sendfile import xsendfileserve
+from .forms import DonationAdminForm
+
 
 class ManageMixin(object):
     @method_decorator(permission_required("core.manage_shop", login_url="/login/"))
@@ -99,11 +101,19 @@ def manage_digital_products(request, product_id, as_string=False,
     product = lfs_get_object_or_404(Product, pk=product_id)
     digiproducts = DigitalAsset.objects.filter(product=product).all()
     donation_mode = DigitalAsset.objects.filter(product=product, donation_mode=True).all()
+    minimum_price = '1.0'
+    suggested_price = '10.0'
+    if len(digiproducts):
+        minimum_price = digiproducts[0].minimum_price
+        suggested_price = digiproducts[0].suggested_price
+
     result = render_to_string(template_name,RequestContext(request, {
         "product": product,
         "digiproducts": digiproducts,
         "has_digiproducts": len(digiproducts),
-        "donation_mode": len(donation_mode)
+        "donation_mode": len(donation_mode),
+        'minimum_price': minimum_price,
+        'suggested_price': suggested_price,
     }))
 
     if as_string:
@@ -152,10 +162,11 @@ def update_digiproducts(request, product_id):
     if action == 'update_donation_mode':
         product = lfs_get_object_or_404(Product, pk=product_id)
         message = _(u"Donation mode has been updated.")
-        if request.POST.get('donation_mode', False):
-            DigitalAsset.objects.filter(product=product).update(donation_mode=True)
-        else:
-            DigitalAsset.objects.filter(product=product).update(donation_mode=False)
+        DigitalAsset.objects.filter(product=product).update(
+            donation_mode=request.POST.get('donation_mode', False),
+            minimum_price=request.POST.get('minimum_price', '1.0'),
+            suggested_price=request.POST.get('suggested_price', '1.0'),
+        )
 
     product_changed.send(product, request=request)
 
