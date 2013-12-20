@@ -95,6 +95,19 @@ class RelatedEditView(UpdateView):
     model = DigitalAsset
     template_name = 'lfs_downloads/manage_related.html'
 
+
+@permission_required("core.manage_shop", login_url="/login/")
+def manage_download_digital_product(request, pk):
+    delivery = lfs_get_object_or_404(DownloadDelivery, id=pk)
+    if delivery.available:
+        #Now, go look for the file and serve it.
+        opath = delivery.asset.file.path
+        dpath = os.path.dirname(opath)
+        fname = os.path.basename(opath)
+        return xsendfileserve(request=request, path=fname, document_root=dpath)
+    else:
+        return HttpResponseForbidden()
+
 @permission_required("core.manage_shop", login_url="/login/")
 def manage_digital_products(request, product_id, as_string=False,
                    template_name="lfs_downloads/manage_digital_products.html"):

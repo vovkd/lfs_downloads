@@ -70,7 +70,7 @@
                                name="delete-{{ digiproduct.id }}"/>
                     </td>
                     <td>
-                        <span>{{digiproduct.get_filename}}</span>
+                        <a href="{% url lfsd_manage_download_digital_product digiproduct.id %}">{{digiproduct.get_filename}}</a>
                     </td>
                     <td>
                         <span>{{ digiproduct.get_filesize|filesizeformat }}</span>
