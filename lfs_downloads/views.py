@@ -6,6 +6,7 @@ from datetime import datetime
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import permission_required
 from django.http import HttpResponse, HttpResponseForbidden
+from django.shortcuts import get_object_or_404
 from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.utils import simplejson
@@ -97,16 +98,13 @@ class RelatedEditView(UpdateView):
 
 
 @permission_required("core.manage_shop", login_url="/login/")
-def manage_download_digital_product(request, pk):
-    delivery = lfs_get_object_or_404(DownloadDelivery, id=pk)
-    if delivery.available:
-        #Now, go look for the file and serve it.
-        opath = delivery.asset.file.path
-        dpath = os.path.dirname(opath)
-        fname = os.path.basename(opath)
-        return xsendfileserve(request=request, path=fname, document_root=dpath)
-    else:
-        return HttpResponseForbidden()
+def manage_download_digital_product(request, asset_id):
+    asset = get_object_or_404(DigitalAsset, pk=asset_id)
+    opath = asset.file.path
+    dpath = os.path.dirname(opath)
+    fname = os.path.basename(opath)
+    return xsendfileserve(request=request, path=fname, document_root=dpath)
+    
 
 @permission_required("core.manage_shop", login_url="/login/")
 def manage_digital_products(request, product_id, as_string=False,

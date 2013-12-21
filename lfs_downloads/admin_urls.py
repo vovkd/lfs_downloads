@@ -14,6 +14,6 @@ urlpatterns = patterns('',
     url(r'^lfsd_handle_upload/(?P<product_id>\d*)$', handle_upload, name='lfsd_handle_upload'),
     url(r'^lfsd_update_digiproducts/(?P<product_id>\d*)$', update_digiproducts, name='lfsd_update_digiproducts'),
     url(r'^lfsd_manage_digital_products/(?P<product_id>\d*)$', manage_digital_products, name='lfsd_manage_digital_products'),
-    url(r'^lfsd_manage_download_digital_product/(?P<pk>\d+)$', manage_download_digital_product, name='lfsd_manage_download_digital_product'),
+    url(r'^lfsd_manage_download_digital_product/(?P<asset_id>\d+)$', manage_download_digital_product, name='lfsd_manage_download_digital_product'),
     url(r'^lfsd_related_products/(?P<product_id>\d*)$', RelatedEditView.as_view(), name='lfsd_related_products'),
 )
